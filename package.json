@@ -1,0 +1,45 @@
+{
+  "name": "rte_bp",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "clean": "node ./scripts/utils/cleanDist.js",
+    "build:veeva": "npm run clean && node ./scripts/veeva/processHTML.js && node ./scripts/veeva/build.js && node ./scripts/utils/createPdfs.js",
+    "build:copromote": "npm run clean && node ./scripts/copromote/processHTML.js && node ./scripts/copromote/build.js && node ./scripts/utils/createPdfs.js",
+    "build:canvas": "npm run clean && node ./scripts/canvas/build.js && node ./scripts/utils/createPdfs.js",
+    "build:figma2rte": "node ./scripts/figma2RTE/build.js",
+    "build:figma2sfmc": "node ./scripts/figma2SFMC/web.js",
+    "build:imgtourl": "node ./scripts/utils/applyImgurls-sfmc.js",
+
+    "sfmc:text": "node ./scripts/figma2SFMC/text.js",
+    "test:regular": "node ./test/regular_staging/server.js && node ./scripts/utils/createPdfs.js",
+    "pdf": "node ./scripts/utils/createPdfs.js",
+    "pdf:url": "node ./scripts/utils/createPdfsURL.js",
+    "dwsnippets": "node ./scripts/utils/dwSnippets.js",
+
+    "build:rte2lsc": "node ./scripts/rte2LSC/build.js",
+    "build:rte2lsc-production": "node ./scripts/rte2LSC/productionFiles.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "archiver": "^7.0.1",
+    "chalk": "^5.4.1",
+    "cheerio": "^1.0.0",
+    "css": "^3.0.0",
+    "html-crush": "^6.0.22",
+    "jsdom": "^24.1.1",
+    "live-server": "^1.2.0",
+    "posthtml": "^0.16.6",
+    "puppeteer": "^24.10.0",
+    "url": "^0.11.4"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "jspdf": "^3.0.2",
+    "node-fetch": "^3.3.2",
+    "strip-json-comments": "^5.0.3"
+  }
+}

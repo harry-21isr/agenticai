@@ -1,0 +1,120 @@
+name: Copy master branch to new repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_id:
+        description: 'New repository suffix or ID (e.g. 123)'
+        required: true
+
+jobs:
+  copy-repo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout original repo
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Build new repository name
+        id: build_name
+        run: |
+          NEW_NAME="pcf-rte-${{ github.event.inputs.repo_id }}"
+          echo "new_repo_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Create repository as INTERNAL (org only)
+        id: create_repo
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          OWNER="${{ github.repository_owner }}"
+          NAME="${{ steps.build_name.outputs.new_repo_name }}"
+
+          echo "Attempting to create INTERNAL repo: ${OWNER}/${NAME}"
+
+          # Ensure OWNER is an org; internal repos cannot exist under users
+          OWNER_TYPE="$(gh api "users/${OWNER}" --jq .type || echo "")"
+          if [ "${OWNER_TYPE}" != "Organization" ]; then
+            echo "❌ ${OWNER} is not an organization. INTERNAL visibility requires an org on Enterprise Cloud."
+            exit 1
+          fi
+
+          # Create (or no-op if exists)
+          if gh api "repos/${OWNER}/${NAME}" --silent > /dev/null 2>&1; then
+            echo "Repo already exists in org."
+          else
+            # Create with explicit visibility=internal
+            gh api "orgs/${OWNER}/repos" -X POST \
+              -f name="${NAME}" \
+              -f visibility=internal
+            echo "Created ${OWNER}/${NAME} with requested visibility=internal."
+          fi
+
+          # Verify visibility and patch if needed
+          VISIBILITY="$(gh api "repos/${OWNER}/${NAME}" --jq .visibility)"
+          echo "Current visibility: ${VISIBILITY}"
+          if [ "${VISIBILITY}" != "internal" ]; then
+            echo "Repo not internal (${VISIBILITY}); attempting to PATCH to internal…"
+            gh api -X PATCH "repos/${OWNER}/${NAME}" -f visibility=internal
+            VISIBILITY="$(gh api "repos/${OWNER}/${NAME}" --jq .visibility)"
+            echo "Post-patch visibility: ${VISIBILITY}"
+            if [ "${VISIBILITY}" != "internal" ]; then
+              echo "❌ Unable to set repo to INTERNAL. Check that the org is on Enterprise Cloud and token permissions allow this."
+              exit 1
+            fi
+          fi
+
+          echo "target_owner=${OWNER}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify target repo exists before pushing
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          OWNER="${{ steps.create_repo.outputs.target_owner }}"
+          NAME="${{ steps.build_name.outputs.new_repo_name }}"
+          echo "Verifying https://github.com/${OWNER}/${NAME} ..."
+          gh api "repos/${OWNER}/${NAME}" > /dev/null
+          echo "✅ Repo exists and is internal."
+
+      - name: Push master branch to target repo (SSH deploy key)
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+          OWNER: ${{ steps.create_repo.outputs.target_owner }}
+          NAME: ${{ steps.build_name.outputs.new_repo_name }}
+        run: |
+          set -euo pipefail
+          echo "Generating temporary SSH key…"
+          ssh-keygen -t ed25519 -C "actions-deploy-key" -N "" -f /tmp/deploy_key >/dev/null
+
+          echo "Adding deploy key to repo with write access…"
+          gh api -X POST "repos/${OWNER}/${NAME}/keys" \
+            -f title="actions-deploy-key" \
+            -f key="$(cat /tmp/deploy_key.pub)" \
+            -f read_only=false
+
+          echo "Starting ssh-agent and loading the key…"
+          eval "$(ssh-agent -s)"
+          ssh-add /tmp/deploy_key
+
+          echo "Configuring SSH host key checking…"
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          echo "Switching remote to SSH and pushing…"
+          git remote remove origin || true
+          git remote add origin "git@github.com:${OWNER}/${NAME}.git"
+          git push -u origin master
+
+      - name: Done
+        run: |
+          echo "🎉 Repository copy completed successfully!"
+          echo "➡️ Destination: https://github.com/${{ steps.create_repo.outputs.target_owner }}/${{ steps.build_name.outputs.new_repo_name }}"

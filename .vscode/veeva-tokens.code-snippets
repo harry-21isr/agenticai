@@ -1,0 +1,174 @@
+{
+  "Veea acc Fname": {
+    "prefix": "{{accFname}}",
+    "body": ["{{accFname}}"],
+    "description": "Veeva: Account First name token"
+  },
+  "Veea acc Lname": {
+    "prefix": "{{accLname}}",
+    "body": ["{{accLname}}"],
+    "description": "Veeva: Account Last name token"
+  },
+  "Veea acc Title": {
+    "prefix": "{{accTitle}}",
+    "body": ["{{accTitle}}"],
+    "description": "Veeva: Account personal Title token"
+  },
+  "Account Middle Name": {
+    "prefix": "{{Account.Middle_vod__c}}",
+    "body": ["{{Account.Middle_vod__c}}"],
+    "description": "Veeva: Account Last Name"
+  },
+  "Account Credentials": {
+    "prefix": "{{accCredentials}}",
+    "body": ["{{accCredentials}}"],
+    "description": "Veeva: Account Credentials"
+  },
+  "User email": {
+    "prefix": "{{userEmailAddress}}",
+    "body": ["{{userEmailAddress}}"],
+    "description": "Veeva: User email token"
+  },
+  "User name": {
+    "prefix": "{{userName}}",
+    "body": ["{{userName}}"],
+    "description": "Veeva: User name token"
+  },
+  "User First Name": {
+    "prefix": "{{User.FirstName}}",
+    "body": ["{{User.FirstName}}"],
+    "description": "Veeva: User First Name"
+  },
+  "User Last Name": {
+    "prefix": "{{User.LastName}}",
+    "body": ["{{User.LastName}}"],
+    "description": "Veeva: User Last Name"
+  },
+  "User phone": {
+    "prefix": "{{User.Phone}}",
+    "body": ["{{User.Phone}}"],
+    "description": "Veeva: User phone token"
+  },
+  "User mobilePhone": {
+    "prefix": "{{User.MobilePhone}}",
+    "body": ["{{User.MobilePhone}}"],
+    "description": "Veeva: User mobile phone token"
+  },
+  "User photo": {
+    "prefix": "{{userPhoto}}",
+    "body": ["{{userPhoto}}"],
+    "description": "Veeva: User photo token"
+  },
+  "Unsubscribe": {
+    "prefix": "{{unsubscribe_product_link[,PL_PBG]}}",
+    "body": ["{{unsubscribe_product_link[,PL_PBG]}}"],
+    "description": "Veeva: Unsubscribe token, use this as <a href='{{unsub_token...}}'> unsubscribe </a>, before _PBG you need to provide correct country code (PL is by default). Country code you can find here: https://docs-vdm.veevanetwork.com/doc/vndocad/Content/Network_topics/Data_model/About_the_data_model.htm#Countrysupport"
+  },
+  "Custom Text": {
+    "prefix": "{{customText}}",
+    "body": ["{{customText}}"],
+    "description": "Veeva: freetext token"
+  },
+  "Custom Text with options": {
+    "prefix": "{{customText[option1|option2|option3]}}",
+    "body": ["{{customText[option1|option2|option3]}}"],
+    "description": "Veeva: dropdown token, please pay attention that it is impossible to put a no-width space inside option (as per 05.2024)"
+  },
+  "Custom Text with blank option": {
+    "prefix": "{{customText[option1|option2| ]}}",
+    "body": ["{{customText[option1|option2| ]}}"],
+    "description": "Veeva: dropdown token with blank option"
+  },
+  "Company Name": {
+    "prefix": "{{User.CompanyName}}",
+    "body": ["{{User.CompanyName}}"],
+    "description": "Veeva: Company Name of User"
+  },
+  "Fax": {
+    "prefix": "{{User.Fax}}",
+    "body": ["{{User.Fax}}"],
+    "description": "Veeva: Fax number of user"
+  },
+  "User Division": {
+    "prefix": "{{User.Division}}",
+    "body": ["{{User.Division}}"],
+    "description": "Veeva: Division of user"
+  },
+  "User Department": {
+    "prefix": "{{User.Department}}",
+    "body": ["{{User.Department}}"],
+    "description": "Veeva: Department of user"
+  },
+  "User Email Signature": {
+    "prefix": "{{User.Signature}}",
+    "body": ["{{User.Signature}}"],
+    "description": "Veeva: User Email Signature"
+  },
+  "Mailing Name": {
+    "prefix": "{{Account.CMS_Mailing_Name__c}}",
+    "body": ["{{Account.CMS_Mailing_Name__c}}"],
+    "description": "Veeva:  This is a specific field within the CMS app in regards to the account. It represents different name for mailing specifically."
+  },
+  "Nick Name": {
+    "prefix": "{{Account.CMS_Nick_Name__c}}",
+    "body": ["{{Account.CMS_Nick_Name__c}}"],
+    "description": "Veeva:  This is a specific field within the CMS app in regards to the account. It represents different name for mailing specifically. HINTS: does not work in sanbox and only work on GCMA"
+  },
+  "Parent Call DataTime": {
+    "prefix": "{{parentCallDatetime}}",
+    "body": ["{{parentCallDatetime}}"],
+    "description": "Veeva:  Generates dates for the meeting."
+  },
+  "Zoom meeting": {
+    "prefix": "{{insertEngageAndZoomJoinURL[COUNTR_CODE]}}",
+    "body": ["{{insertEngageAndZoomJoinURL[COUNTR_CODE]}}"],
+    "description": "Veeva:  Generates zoom meeting links, passwords and access codes. Country code you can find here: https://docs-vdm.veevanetwork.com/doc/vndocad/Content/Network_topics/Data_model/About_the_data_model.htm#Countrysupport"
+  },
+  "Teams meeting": {
+    "prefix": "{{Call2_vod__c.MS_Teams_Remote_Meeting_vod__r.MS_Teams_Meeting_Link_vod__c}}",
+    "body": [
+      "{{Call2_vod__c.MS_Teams_Remote_Meeting_vod__r.MS_Teams_Meeting_Link_vod__c}}",
+    ],
+    "description": "Veeva:  Generates zoom meeting links, more information you can find here: https://crmhelp.veeva.com/doc/Content/CRM_topics/Multichannel/Engage/EngageMeeting/MSMeet/MSTeams.htm"
+  },
+  "Second Level Veea acc Fname": {
+    "prefix": "##accFname##",
+    "body": ["##accFname##"],
+    "description": "Veeva: Account First name token as customText option"
+  },
+  "Second Level Veea acc Lname": {
+    "prefix": "##accLname##",
+    "body": ["##accLname##"],
+    "description": "Veeva: Account Last name token as customText option"
+  },
+  "Second Level Veea acc Title": {
+    "prefix": "##accTitle##",
+    "body": ["##accTitle##"],
+    "description": "Veeva: Account personal Title token as customText option"
+  },
+  "UnsubscribeUSA": {
+    "prefix": "{{unsubscribe_product_link}}",
+    "body": ["{{unsubscribe_product_link}}"],
+    "description": "UNSUBS for usa only"
+  },
+  "Preferred Email name": {
+    "prefix": "{{Account.AE_Preferred_Email_Name__c}}",
+    "body": ["{{Account.AE_Preferred_Email_Name__c}}"],
+    "description": "Preferred email name of the HCP account"
+  },
+  "Piece link": {
+    "prefix": "{{PieceLink}}",
+    "body": ["{{PieceLink}}"],
+    "description": "PieceLink token"
+  },
+  "CMT url token code ?": {
+    "prefix": "?cmp={{Approved_Document_vod__c.CMS_Campaign_Source_Code__c}}&ttype=RTE",
+    "body": ["?cmp={{Approved_Document_vod__c.CMS_Campaign_Source_Code__c}}&ttype=RTE"],
+    "description": "Campaign ID token with ?cmp= and type attributes included"
+  },
+  "CMT url token code &": {
+    "prefix": "&cmp={{Approved_Document_vod__c.CMS_Campaign_Source_Code__c}}&ttype=RTE",
+    "body": ["&cmp={{Approved_Document_vod__c.CMS_Campaign_Source_Code__c}}&ttype=RTE"],
+    "description": "Campaign ID token with &cmp= and type attributes included"
+  }
+}

@@ -66,12 +66,40 @@ jobs:
               "
           }
 
-          call_ai "Update AGENTS.md to reflect new agents, their roles, inputs, outputs, and tools based on the diff." "AGENTS.md"
+          call_ai "Update AGENTS.md call_ai "You are updating CLAUDE.md, a coding assistant context file for a Next.js 16 project. 
+          Based on the diff, update only the relevant sections (Stack, Architecture, Breaking Changes, Commands, Gotchas). 
+          Keep all existing content. Only modify sections affected by the diff. 
+          Preserve the exact markdown format and structure of the original file." "AGENTS.md"
 
-          call_ai "Update SKILLS.md to reflect any new or modified skills/tools used by agents based on the diff." "SKILLS.md"
+          call_ai "You are updating CHANGELOG.md for a Next.js 16 project.
+          Based on the git diff, prepend a new entry at the very top of the file using this exact format:
 
-          call_ai "Update CHANGELOG.md by prepending a new entry for today $(date +%Y-%m-%d) describing what changed based on the diff. Keep existing entries." "CHANGELOG.md"
+          ## [$(date +%Y-%m-%d)]
 
+          ### Added
+          - feature or change added
+          - files/folders affected: \`path/to/file\`
+
+          ### Removed
+          - feature or change removed
+          - files/folders affected: \`path/to/file\`
+
+          ### Updated
+          - feature or change updated
+          - files/folders affected: \`path/to/file\`
+
+          ---
+
+          Rules:
+          - NEVER modify or remove any existing changelog entries below the new one
+          - Only include sections (Added/Removed/Updated) that actually have changes
+          - Be specific and concise per bullet
+          - Respond with the FULL file content (new entry + all existing entries unchanged)" "CHANGELOG.md"
+
+          call_ai "You are updating CLAUDE.md, a coding assistant context file for a Next.js 16 + React 19 + Tailwind v4 project.
+          Based on the diff, update only sections affected by the changes (Stack, Architecture, Breaking Changes, Commands).
+          Keep all existing content intact. Preserve exact markdown format.
+          Respond with the FULL updated file content." "CLAUDE.md"
 
       - name: Commit changes
         run: |
@@ -79,10 +107,10 @@ jobs:
           git config user.email github-actions@github.com
           git checkout ${{ github.head_ref }}
 
-          git add AGENTS.md SKILLS.md CHANGELOG.md
+          git add AGENTS.md CHANGELOG.md
 
           git diff --staged --quiet && echo "No changes" || (
-            git commit -m "AI: update AGENTS.md, SKILLS.md, CHANGELOG.md" &&
+            git commit -m "AI: update AGENTS.md, CHANGELOG.md" &&
             git push origin ${{ github.head_ref }}
           )
 

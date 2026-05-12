@@ -26,10 +26,17 @@ jobs:
       - name: Install Codex CLI
         run: npm install -g @openai/codex
 
+      - name: Debug API key
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          echo "Key starts with: ${OPENAI_API_KEY:0:7}"
+
       - name: Run AI docs update
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # Ensure the API key is available for Codex CLI
         run: |
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
           codex --model gpt-4o exec "
           Read .ai/prompts/update-docs.md
           Analyze git diff against main branch

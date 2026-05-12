@@ -60,9 +60,17 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+          
+          # Checkout the actual PR branch
+          git checkout ${{ github.head_ref }}
+          
           git add .
-          git diff --quiet && echo "No changes" || git commit -m "AI update docs"
-          git push
+          
+          # Only commit if there are actual changes
+          git diff --staged --quiet && echo "No changes" || (
+            git commit -m "AI update docs" &&
+            git push origin ${{ github.head_ref }}
+          )
 
 
       - name: Generate PR summary

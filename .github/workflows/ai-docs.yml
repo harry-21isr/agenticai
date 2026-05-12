@@ -80,7 +80,7 @@ jobs:
         run: |
           DIFF=$(git diff origin/main...HEAD | head -c 8000)
 
-          SUMMARY=$(curl -s https://api.openai.com/v1/chat/completions \
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
             -H "Content-Type: application/json" \
             -d "{
@@ -89,10 +89,15 @@ jobs:
                 \"role\": \"user\",
                 \"content\": \"Analyze this git diff and generate a concise PR summary:\n\n$DIFF\"
               }]
-            }" | node -e "
-              const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
-              console.log(d.choices[0].message.content);
-            ")
+            }")
+
+          echo "API Response: $RESPONSE"
+
+          SUMMARY=$(echo "$RESPONSE" | node -e "
+            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if (d.error) { console.error('API Error:', d.error.message); process.exit(1); }
+            console.log(d.choices[0].message.content);
+          ")
 
           gh pr edit ${{ github.event.pull_request.number }} \
             --body "$SUMMARY"

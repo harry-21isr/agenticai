@@ -80,16 +80,23 @@ jobs:
         run: |
           DIFF=$(git diff origin/main...HEAD | head -c 8000)
 
+          # Write payload to file to avoid JSON escaping issues
+          node -e "
+            const diff = process.env.DIFF;
+            const payload = {
+              model: 'gpt-4o',
+              messages: [{ 
+                role: 'user', 
+                content: 'Analyze this git diff and generate a concise PR summary:\n\n' + diff 
+              }]
+            };
+            require('fs').writeFileSync('payload.json', JSON.stringify(payload));
+          "
+
           RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "{
-              \"model\": \"gpt-4o\",
-              \"messages\": [{
-                \"role\": \"user\",
-                \"content\": \"Analyze this git diff and generate a concise PR summary:\n\n$DIFF\"
-              }]
-            }")
+            -d @payload.json)
 
           echo "API Response: $RESPONSE"
 
@@ -101,3 +108,5 @@ jobs:
 
           gh pr edit ${{ github.event.pull_request.number }} \
             --body "$SUMMARY"
+        env:
+          DIFF: $(git diff origin/main...HEAD | head -c 8000)

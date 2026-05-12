@@ -1,4 +1,3 @@
-```markdown
 ## [2026-05-12]
 
 ### Changed
@@ -9,4 +8,13 @@
   - Commits these changes with a clearer message: "AI: update AGENTS.md, SKILLS.md, CHANGELOG.md".
 
 - Removed `scripts/figma2SFMC/text.js`, effectively ceasing the generation of plain text versions from HTML content using this script. This file included logic for processing HTML content and generating text output, including significant content processing steps such as cleanup and DOM manipulations with Cheerio.
-```
+
+**version: 27-march-2026**
+
+Added
+- Text variables replacement (support adding dinamic text into ticket-info file and make the auto replacement when building the html). (SFMC/RTE)
+
+**version: 24-march-2026**
+
+Fixed
+- Changed from fetching all figma tree to fetching specific node ID only. Affect .env file id value and fetching logic which use it. (SFMC/RTE)

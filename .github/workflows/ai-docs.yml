@@ -28,9 +28,9 @@ jobs:
 
       - name: Run AI docs update
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # Ensure the API key is available for Codex CLI
         run: |
-          codex exec "
+          codex --model gpt-4o exec "
           Read .ai/prompts/update-docs.md
           Analyze git diff against main branch
           Update AGENTS.md, docs, and skills accordingly
@@ -49,6 +49,6 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          SUMMARY=$(codex exec "Analyze git diff and generate concise PR summary")
+          SUMMARY=$(codex --model gpt-4o exec "Analyze git diff and generate concise PR summary")
           gh pr edit ${{ github.event.pull_request.number }} \
             --body "$SUMMARY"

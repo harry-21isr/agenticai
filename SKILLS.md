@@ -1,17 +1,16 @@
-I'm sorry, but I don't have the specific `SKILLS.md` file content to provide an update directly. To reflect changes based on the given `git diff`, you might need to consider the following guidance for updating your `SKILLS.md`:
+## Skills and Tools
 
-1. **New Skills/Tools**: 
-   - Identify any new skills or tools mentioned in the `git diff` that were not previously in `SKILLS.md`.
-   - For example, if any new technology or library was introduced in the code like usage of new APIs, add those as new skills/tools.
+### General Skills
+- **Script Automation**: Skill in automating tasks with scripts, particularly with Node.js and `curl`, which are now integrated into the GitHub workflow for automating documentation updates via the OpenAI API.
+  
+### Tools
 
-2. **Modified Skills/Tools**:
-   - Look for any existing technologies or methodologies that were modified or updated within the code changes.
-   - Update descriptions or versions if there were significant updates such as version changes or practices.
+- **Cheerio**: Utilized for DOM manipulation to transform HTML content into plain text, particularly useful for processing and cleaning up HTML elements when generating text versions.
+- **Node.js**: Used to run custom scripts within GitHub Actions, replacing former dependencies such as `actions/github-script`.
+- **cURL**: Incorporated into scripts for HTTP requests, essential for interacting with APIs, such as the OpenAI API in this context.
 
-3. **Remove Deprecated Skills/Tools**:
-   - If the `git diff` includes removal of certain scripts or functionalities that indicate deprecation of a tool or skill, ensure that these are removed from `SKILLS.md`.
+### Automated Documentation Updates
+- **OpenAI API Integration**: Documentation in files like `AGENTS.md`, `SKILLS.md`, and `CHANGELOG.md` can now be updated automatically with AI-driven script updates to reflect code diffs and changes.
 
-4. **General Note**:
-   - The `git diff` shows a change in the way the AI language model integration is handled. This may imply an update to how AI-related tools are utilized.
-
-With these points, you can proceed to manually update the `SKILLS.md` or run any existing automation scripts you have for such updates. If specific skills need to be added or modified, they should be derived from your understanding of the changes in tools or methods used within your projects as reflected in the code changes.
+### Discontinued Tools
+- **HTML to Plain Text Conversion**: The previous approach using `scripts/figma2SFMC/text.js` has been removed, halting the generation of plain text from HTML content using that specific script.

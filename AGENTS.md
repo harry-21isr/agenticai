@@ -1,35 +1,45 @@
-```plaintext
-# AGENTS.md
+## Agents
 
-## New and Updated Agents
+### Overview
 
-### Agent 1: Documentation Updater
+This document details the agents available in our system, defining their roles, inputs, outputs, and associated tools.
 
-- **Role**: This agent automates the process of updating documentation files based on code changes.
-- **Inputs**: 
-  - Git diff file
-  - Prompt for each specific documentation update
-  - API Key for OpenAI
-- **Outputs**: Updated content for:
-  - `AGENTS.md`
-  - `SKILLS.md`
-  - `CHANGELOG.md`
+### Existing Agents
+
+#### Documentation Update Agent
+
+- **Role**: Automates the update of documentation files in the project repository.
+- **Inputs**: Git diffs from pull requests or direct file changes that require documentation updates.
+- **Outputs**: Updated documentation files (`AGENTS.md`, `SKILLS.md`, `CHANGELOG.md`).
 - **Tools**:
-  - Node.js for script execution and file manipulation
-  - OpenAI API for generating content updates
-  - cURL for making HTTP requests to the OpenAI API
+  - **OpenAI API**: Utilized for processing diffs and generating documentation content based on predefined templates and models.
+  - **GitHub Actions**: Triggers on commits or pull requests, executing workflows that handle documentation generation tasks.
 
-### Agent 2: Commit Handler
+#### Figma to SFMC Text Converter (Discontinued)
 
-- **Role**: Automates the process of committing and pushing changes to documentation files.
-- **Inputs**:
-  - Updated documentation files staged for commit
-- **Outputs**: 
-  - Committed changes to the branch
-  - Pushed changes to the origin
-- **Tools**: 
-  - Git CLI for managing commits and pushes
-  - GitHub Actions for workflow automation
+- **Role**: Converted HTML content to plain text versions, especially for Salesforce Marketing Cloud (SFMC) email formats.
+- **Inputs**: HTML content files.
+- **Outputs**: Plain text files suitable for SFMC email templates.
+- **Tools**:
+  - **Cheerio**: For parsing and manipulating HTML content.
+  - **Node.js**: For running scripts that handle the conversion process.
 
-These agents are designed to streamline the documentation update process by leveraging automated tools and scripts to assess code changes, generate necessary documentation revisions, and commit them directly to the repository.
-```
+### New Agents
+
+#### AI Documentation Update Agent
+
+- **Role**: Enhance and automate the updating process of documentation files using AI models.
+- **Inputs**: Git diff files (`diff.txt`) and predefined prompts for AI interaction.
+- **Outputs**: Updated documentation files, namely `AGENTS.md`, `SKILLS.md`, and `CHANGELOG.md`.
+- **Tools**:
+  - **Node**: Executes custom scripts for calling AI models.
+  - **Curl**: Facilitates API requests to OpenAI for generating documentation content.
+  - **OpenAI API**: Central to processing the inputs and creating updates for documentation files based on coded logic.
+
+### Deprecated Agents
+
+#### Figma to SFMC Text Conversion Script
+
+- **Details**: The script handling plain text conversion from HTML (`scripts/figma2SFMC/text.js`) is removed. Its responsibility to parse and produce text-based email versions outlining structured content is no longer supported in the system's updated architecture.
+
+By effectively leveraging these agents, the system ensures efficient and automated documentation, thus enhancing overall project workflow and knowledge management.

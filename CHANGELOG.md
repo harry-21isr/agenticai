@@ -1,20 +1,59 @@
-## [2026-05-12]
+## [2026-05-14]
 
-### Changed
-- Updated the `.github/workflows/ai-docs.yml` file to replace the GitHub Action step utilizing `actions/github-script` with a custom script that uses `node` and `curl`. This script calls the OpenAI API for processing diffs and updating documentation files (`AGENTS.md`, `SKILLS.md`, and `CHANGELOG.md`). The process now:
-  - Saves the git diff to `diff.txt`.
-  - Defines a function `call_ai` to interact with the OpenAI API and update documentation files based on prompts.
-  - Automates the updates of `AGENTS.md`, `SKILLS.md`, and `CHANGELOG.md` using this new function.
-  - Commits these changes with a clearer message: "AI: update AGENTS.md, SKILLS.md, CHANGELOG.md".
+### Added
+- Added handling of prompt files to avoid special-character escaping issues in AI assistant scripts.
+- Added detailed instructions for updating AGENTS.md and CHANGELOG.md based on git diff.
+- files/folders affected: `.github/workflows/ai-docs.yml`
 
-- Removed `scripts/figma2SFMC/text.js`, effectively ceasing the generation of plain text versions from HTML content using this script. This file included logic for processing HTML content and generating text output, including significant content processing steps such as cleanup and DOM manipulations with Cheerio.
+### Updated
+- Updated the AI assistant script to improve error handling during API call.
+- Improved console log messages for file update confirmations in AI assistant workflow.
+- files/folders affected: `.github/workflows/ai-docs.yml`
 
-**version: 27-march-2026**
+---
 
-Added
-- Text variables replacement (support adding dinamic text into ticket-info file and make the auto replacement when building the html). (SFMC/RTE)
+## [2026-05-07]
 
-**version: 24-march-2026**
+### Added
+- Introduced a new authentication system.
+- files/folders affected: `pages/api/auth`, `utils/auth`
 
-Fixed
-- Changed from fetching all figma tree to fetching specific node ID only. Affect .env file id value and fetching logic which use it. (SFMC/RTE)
+### Removed
+- Deprecated old authentication middleware.
+- files/folders affected: `middleware/oldAuth.js`
+
+### Updated
+- Enhanced the user profile page with additional settings.
+- files/folders affected: `pages/profile.js`
+
+---
+
+## [2026-04-30]
+
+### Updated
+- Refactored database connection logic for improved performance.
+- files/folders affected: `lib/db.js`
+
+---
+
+## [2026-04-20]
+
+### Added
+- New logging system for tracking user activities.
+- files/folders affected: `lib/logger.js`, `middleware/logging.js`
+
+---
+
+## [2026-04-12]
+
+### Updated
+- Accessibility improvements on the homepage.
+- files/folders affected: `pages/index.js`, `styles/home.css`
+
+---
+
+## [2026-03-08]
+
+### Removed
+- Old unused components.
+- files/folders affected: `components/unusedComponent.js`

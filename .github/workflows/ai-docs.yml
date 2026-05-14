@@ -43,13 +43,17 @@ jobs:
             local prompt="$1"
             local outfile="$2"
 
+            # Write prompt to file to avoid special-character escaping issues
+            printf '%s' "$prompt" > prompt.txt
+
             node -e "
               const diff = require('fs').readFileSync('diff.txt', 'utf8');
+              const prompt = require('fs').readFileSync('prompt.txt', 'utf8');
               const payload = {
                 model: 'gpt-4o',
                 messages: [{ 
                   role: 'user', 
-                  content: \`$prompt\n\nGit diff:\n\` + diff + '\n\nRespond with ONLY the file content, no explanations or markdown fences.'
+                  content: prompt + '\n\nGit diff:\n' + diff + '\n\nRespond with ONLY the file content, no explanations or markdown fences.'
                 }]
               };
               require('fs').writeFileSync('payload.json', JSON.stringify(payload));
@@ -58,32 +62,61 @@ jobs:
             curl -s https://api.openai.com/v1/chat/completions \
               -H "Authorization: Bearer $OPENAI_API_KEY" \
               -H "Content-Type: application/json" \
-              -d @payload.json | node -e "
-                const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
-                if (d.error) { console.error('API Error:', d.error.message); process.exit(1); }
-                require('fs').writeFileSync('$outfile', d.choices[0].message.content);
-                console.log('Updated: $outfile');
-              "
+              -d @payload.json > response.json
+
+            OUTFILE="$outfile" node -e "
+              const d = JSON.parse(require('fs').readFileSync('response.json', 'utf8'));
+              if (d.error) { console.error('API Error:', d.error.message); process.exit(1); }
+              require('fs').writeFileSync(process.env.OUTFILE, d.choices[0].message.content);
+              console.log('Updated: ' + process.env.OUTFILE);
+            "
           }
 
-          call_ai "Update AGENTS.md to reflect new agents, their roles, inputs, outputs, and tools based on the diff." "AGENTS.md"
+          call_ai "You are updating AGENTS.md for this project.
+          Based on the diff, update only the relevant sections.
+          Keep all existing content. Only modify sections affected by the diff.
+          Preserve the exact markdown format and structure of the original file." "AGENTS.md"
 
-          call_ai "Update SKILLS.md to reflect any new or modified skills/tools used by agents based on the diff." "SKILLS.md"
+          call_ai "You are updating CHANGELOG.md for a Next.js 16 project.
+          Based on the git diff, prepend a new entry at the very top of the file using this exact format:
 
-          call_ai "Update CHANGELOG.md by prepending a new entry for today $(date +%Y-%m-%d) describing what changed based on the diff. Keep existing entries." "CHANGELOG.md"
+          ## [$(date +%Y-%m-%d)]
 
+          ### Added
+          - feature or change added
+          - files/folders affected: \`path/to/file\`
+
+          ### Removed
+          - feature or change removed
+          - files/folders affected: \`path/to/file\`
+
+          ### Updated
+          - feature or change updated
+          - files/folders affected: \`path/to/file\`
+
+          ---
+
+          Rules:
+          - NEVER modify or remove any existing changelog entries below the new one
+          - Only include sections (Added/Removed/Updated) that actually have changes
+          - Be specific and concise per bullet
+          - Respond with the FULL file content (new entry + all existing entries unchanged)" "CHANGELOG.md"
+
+          call_ai "You are updating AGENTS.md, a coding assistant context file for a Next.js 16 + React 19 + Tailwind v4 project.
+          Based on the diff, update only sections affected by the changes (Stack, Architecture, Breaking Changes, Commands).
+          Keep all existing content intact. Preserve exact markdown format.
+          Respond with the FULL updated file content." "AGENTS.md"
 
       - name: Commit changes
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git checkout ${{ github.head_ref }}
 
-          git add AGENTS.md SKILLS.md CHANGELOG.md
+          git add AGENTS.md CHANGELOG.md
 
           git diff --staged --quiet && echo "No changes" || (
-            git commit -m "AI: update AGENTS.md, SKILLS.md, CHANGELOG.md" &&
-            git push origin ${{ github.head_ref }}
+            git commit -m "AI: update AGENTS.md, CHANGELOG.md" &&
+            git push origin HEAD:refs/heads/${{ github.head_ref }}
           )
 
       - name: Generate PR summary
@@ -119,3 +152,8 @@ jobs:
 
           gh pr edit ${{ github.event.pull_request.number }} \
             --body "$SUMMARY"
+
+
+
+
+          

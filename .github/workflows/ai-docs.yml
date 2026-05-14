@@ -26,12 +26,6 @@ jobs:
       - name: Install Codex CLI
         run: npm install -g @openai/codex
 
-      - name: Debug API key
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          echo "Key starts with: ${OPENAI_API_KEY:0:7}"
-
       - name: Run AI docs update
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -64,54 +58,45 @@ jobs:
               -H "Content-Type: application/json" \
               -d @payload.json > response.json
 
-            OUTFILE="$outfile" node -e "
+            node -e "
               const d = JSON.parse(require('fs').readFileSync('response.json', 'utf8'));
               if (d.error) { console.error('API Error:', d.error.message); process.exit(1); }
-              require('fs').writeFileSync(process.env.OUTFILE, d.choices[0].message.content);
-              console.log('Updated: ' + process.env.OUTFILE);
-            "
+              process.stdout.write(d.choices[0].message.content);
+            " > "$outfile"
+            echo "Updated: $outfile"
           }
 
-          call_ai "You are updating AGENTS.md.
-
-          INPUTS:
-          1. Existing AGENTS.md
-          2. package.json
-          3. Git diff
+          call_ai "You are updating AGENTS.md for this Node.js email template build toolchain project.
+          Based on the git diff, update only the affected sections.
 
           Rules:
-          - Update only affected sections
-          - Keep markdown structure stable
+          - Keep the markdown structure stable
           - Keep unrelated text byte-for-byte when possible
           - Prefer minimal diffs
           - Do not reorder sections
           - Do not add speculative documentation
           - If diff does not affect developer workflow, return original file unchanged
-          - removed features should be marked as deprecated, not deleted, to preserve historical context.
+          - Removed features should be marked as deprecated, not deleted, to preserve historical context
 
           Focus on operational guidance for AI agents working in this repository.
-          AGENTS.md package.json git.diff"
+          Respond with the FULL updated file content." "AGENTS.md"
 
-          
-
-          call_ai "You are updating CHANGELOG.md, a coding assistant context file for a Next.js 16 + React 19 + Tailwind v4 project.
-          Based on the diff, update only sections affected by the changes (Stack, Architecture, Breaking Changes, Commands).
-          Keep all existing content intact. Preserve exact markdown format.
-          Respond with the FULL updated file content." "CHANGELOG.md
+          call_ai "You are updating CHANGELOG.md for this project.
+          Based on the git diff, prepend a new entry at the very top using this exact format:
 
           ## [$(date +%Y-%m-%d)]
 
           ### Added
           - feature or change added
-          - files/folders affected: \`path/to/file\`
+          - files/folders affected: path/to/file
 
           ### Removed
           - feature or change removed
-          - files/folders affected: \`path/to/file\`
+          - files/folders affected: path/to/file
 
           ### Updated
           - feature or change updated
-          - files/folders affected: \`path/to/file\`
+          - files/folders affected: path/to/file
 
           ---
 

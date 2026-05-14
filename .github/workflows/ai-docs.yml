@@ -43,13 +43,17 @@ jobs:
             local prompt="$1"
             local outfile="$2"
 
+            # Write prompt to file to avoid special-character escaping issues
+            printf '%s' "$prompt" > prompt.txt
+
             node -e "
               const diff = require('fs').readFileSync('diff.txt', 'utf8');
+              const prompt = require('fs').readFileSync('prompt.txt', 'utf8');
               const payload = {
                 model: 'gpt-4o',
                 messages: [{ 
                   role: 'user', 
-                  content: \`$prompt\n\nGit diff:\n\` + diff + '\n\nRespond with ONLY the file content, no explanations or markdown fences.'
+                  content: prompt + '\n\nGit diff:\n' + diff + '\n\nRespond with ONLY the file content, no explanations or markdown fences.'
                 }]
               };
               require('fs').writeFileSync('payload.json', JSON.stringify(payload));
@@ -61,14 +65,14 @@ jobs:
               -d @payload.json | node -e "
                 const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
                 if (d.error) { console.error('API Error:', d.error.message); process.exit(1); }
-                require('fs').writeFileSync('$outfile', d.choices[0].message.content);
-                console.log('Updated: $outfile');
-              "
+                require('fs').writeFileSync(process.env.OUTFILE, d.choices[0].message.content);
+                console.log('Updated: ' + process.env.OUTFILE);
+              " OUTFILE="$outfile"
           }
 
-          call_ai "Update AGENTS.md call_ai "You are updating CLAUDE.md, a coding assistant context file for a Next.js 16 project. 
-          Based on the diff, update only the relevant sections (Stack, Architecture, Breaking Changes, Commands, Gotchas). 
-          Keep all existing content. Only modify sections affected by the diff. 
+          call_ai "You are updating AGENTS.md for this project.
+          Based on the diff, update only the relevant sections.
+          Keep all existing content. Only modify sections affected by the diff.
           Preserve the exact markdown format and structure of the original file." "AGENTS.md"
 
           call_ai "You are updating CHANGELOG.md for a Next.js 16 project.
@@ -96,10 +100,10 @@ jobs:
           - Be specific and concise per bullet
           - Respond with the FULL file content (new entry + all existing entries unchanged)" "CHANGELOG.md"
 
-          call_ai "You are updating CLAUDE.md, a coding assistant context file for a Next.js 16 + React 19 + Tailwind v4 project.
+          call_ai "You are updating AGENTS.md, a coding assistant context file for a Next.js 16 + React 19 + Tailwind v4 project.
           Based on the diff, update only sections affected by the changes (Stack, Architecture, Breaking Changes, Commands).
           Keep all existing content intact. Preserve exact markdown format.
-          Respond with the FULL updated file content." "CLAUDE.md"
+          Respond with the FULL updated file content." "AGENTS.md"
 
       - name: Commit changes
         run: |

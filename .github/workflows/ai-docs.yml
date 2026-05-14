@@ -72,13 +72,32 @@ jobs:
             "
           }
 
-          call_ai "You are updating AGENTS.md for this project.
-          Based on the diff, update only the relevant sections.
-          Keep all existing content. Only modify sections affected by the diff.
-          Preserve the exact markdown format and structure of the original file." "AGENTS.md"
+          call_ai "You are updating AGENTS.md.
 
-          call_ai "You are updating CHANGELOG.md for a Next.js 16 project.
-          Based on the git diff, prepend a new entry at the very top of the file using this exact format:
+          INPUTS:
+          1. Existing AGENTS.md
+          2. package.json
+          3. Git diff
+
+          Rules:
+          - Update only affected sections
+          - Keep markdown structure stable
+          - Keep unrelated text byte-for-byte when possible
+          - Prefer minimal diffs
+          - Do not reorder sections
+          - Do not add speculative documentation
+          - If diff does not affect developer workflow, return original file unchanged
+          - removed features should be marked as deprecated, not deleted, to preserve historical context.
+
+          Focus on operational guidance for AI agents working in this repository.
+          AGENTS.md package.json git.diff"
+
+          
+
+          call_ai "You are updating CHANGELOG.md, a coding assistant context file for a Next.js 16 + React 19 + Tailwind v4 project.
+          Based on the diff, update only sections affected by the changes (Stack, Architecture, Breaking Changes, Commands).
+          Keep all existing content intact. Preserve exact markdown format.
+          Respond with the FULL updated file content." "CHANGELOG.md
 
           ## [$(date +%Y-%m-%d)]
 
@@ -97,15 +116,11 @@ jobs:
           ---
 
           Rules:
-          - NEVER modify or remove any existing changelog entries below the new one
-          - Only include sections (Added/Removed/Updated) that actually have changes
-          - Be specific and concise per bullet
-          - Respond with the FULL file content (new entry + all existing entries unchanged)" "CHANGELOG.md"
-
-          call_ai "You are updating AGENTS.md, a coding assistant context file for a Next.js 16 + React 19 + Tailwind v4 project.
-          Based on the diff, update only sections affected by the changes (Stack, Architecture, Breaking Changes, Commands).
-          Keep all existing content intact. Preserve exact markdown format.
-          Respond with the FULL updated file content." "AGENTS.md"
+          - NEVER modify or remove any existing entries below the new one
+          - Only include sections (Added/Removed/Updated) that actually have changes in the diff
+          - Be specific: mention the actual feature, component, or behavior that changed per bullet
+          - Reference real file paths from the diff, not placeholders
+          - Respond with the FULL file content (new entry at top + all existing entries unchanged)" "CHANGELOG.md"
 
       - name: Commit changes
         run: |

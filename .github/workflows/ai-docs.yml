@@ -38,90 +38,68 @@ jobs:
         run: |
           git diff origin/main...HEAD | head -c 8000 > diff.txt
 
-          node << 'EOF'
-          const fs = require('fs');
-          const https = require('https');
+          # Function to call OpenAI and write to a file
+          call_ai() {
+            local prompt="$1"
+            local outfile="$2"
 
-          const diff = fs.readFileSync('diff.txt', 'utf8');
-          const today = new Date().toISOString().split('T')[0];
+            node -e "
+              const diff = require('fs').readFileSync('diff.txt', 'utf8');
+              const payload = {
+                model: 'gpt-4o',
+                messages: [{ 
+                  role: 'user', 
+                  content: \`$prompt\n\nGit diff:\n\` + diff + '\n\nRespond with ONLY the file content, no explanations or markdown fences.'
+                }]
+              };
+              require('fs').writeFileSync('payload.json', JSON.stringify(payload));
+            "
 
-          async function callAI(prompt, outfile) {
-            const existing = fs.existsSync(outfile) ? fs.readFileSync(outfile, 'utf8') : '';
-
-            const payload = JSON.stringify({
-              model: 'gpt-4o',
-              messages: [{
-                role: 'user',
-                content: prompt + '\n\nExisting file:\n' + existing + '\n\nGit diff:\n' + diff + '\n\nRespond with ONLY the full updated file content, no markdown fences.'
-              }]
-            });
-
-            return new Promise((resolve, reject) => {
-              const req = https.request({
-                hostname: 'api.openai.com',
-                path: '/v1/chat/completions',
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-                }
-              }, (res) => {
-                let data = '';
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => {
-                  const json = JSON.parse(data);
-                  if (json.error) { console.error('API Error:', json.error.message); process.exit(1); }
-                  fs.writeFileSync(outfile, json.choices[0].message.content);
-                  console.log('Updated:', outfile);
-                  resolve();
-                });
-              });
-              req.on('error', reject);
-              req.write(payload);
-              req.end();
-            });
+            curl -s https://api.openai.com/v1/chat/completions \
+              -H "Authorization: Bearer $OPENAI_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d @payload.json | node -e "
+                const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+                if (d.error) { console.error('API Error:', d.error.message); process.exit(1); }
+                require('fs').writeFileSync('$outfile', d.choices[0].message.content);
+                console.log('Updated: $outfile');
+              "
           }
 
-          async function main() {
-            await callAI(
-              `You are updating AGENTS.md, a coding assistant context file for a Next.js 16 project.
-              Based on the diff, update only the relevant sections (Stack, Architecture, Breaking Changes, Commands, Gotchas).
-              Keep all existing content. Only modify sections affected by the diff.
-              Preserve the exact markdown format and structure of the original file.`,
-              'AGENTS.md'
-            );
+          call_ai "Update AGENTS.md call_ai "You are updating CLAUDE.md, a coding assistant context file for a Next.js 16 project. 
+          Based on the diff, update only the relevant sections (Stack, Architecture, Breaking Changes, Commands, Gotchas). 
+          Keep all existing content. Only modify sections affected by the diff. 
+          Preserve the exact markdown format and structure of the original file." "AGENTS.md"
 
-            await callAI(
-              `You are updating CHANGELOG.md for a Next.js 16 project.
-              Based on the git diff, prepend a new entry at the very top using this exact format:
+          call_ai "You are updating CHANGELOG.md for a Next.js 16 project.
+          Based on the git diff, prepend a new entry at the very top of the file using this exact format:
 
-              ## [${today}]
+          ## [$(date +%Y-%m-%d)]
 
-              ### Added
-              - feature or change added
-              - files/folders affected: path/to/file
+          ### Added
+          - feature or change added
+          - files/folders affected: \`path/to/file\`
 
-              ### Removed
-              - feature or change removed
-              - files/folders affected: path/to/file
+          ### Removed
+          - feature or change removed
+          - files/folders affected: \`path/to/file\`
 
-              ### Updated
-              - feature or change updated
-              - files/folders affected: path/to/file
+          ### Updated
+          - feature or change updated
+          - files/folders affected: \`path/to/file\`
 
-              ---
+          ---
 
-              Rules:
-              - NEVER modify or remove any existing changelog entries below the new one
-              - Only include sections (Added/Removed/Updated) that actually have changes
-              - Be specific and concise per bullet
-              - Respond with the FULL file content (new entry + all existing entries unchanged)`,
-                            'CHANGELOG.md'
-                          );
-                        }
+          Rules:
+          - NEVER modify or remove any existing changelog entries below the new one
+          - Only include sections (Added/Removed/Updated) that actually have changes
+          - Be specific and concise per bullet
+          - Respond with the FULL file content (new entry + all existing entries unchanged)" "CHANGELOG.md"
 
-                        main().catch(err => { console.error(err); process.exit(1); });
-              EOF
+          call_ai "You are updating CLAUDE.md, a coding assistant context file for a Next.js 16 + React 19 + Tailwind v4 project.
+          Based on the diff, update only sections affected by the changes (Stack, Architecture, Breaking Changes, Commands).
+          Keep all existing content intact. Preserve exact markdown format.
+          Respond with the FULL updated file content." "CLAUDE.md"
 
       - name: Commit changes
         run: |
@@ -135,9 +113,6 @@ jobs:
             git commit -m "AI: update AGENTS.md, CHANGELOG.md" &&
             git push origin ${{ github.head_ref }}
           )
-
-
-
 
       - name: Generate PR summary
         env:
@@ -172,3 +147,8 @@ jobs:
 
           gh pr edit ${{ github.event.pull_request.number }} \
             --body "$SUMMARY"
+
+
+
+
+          

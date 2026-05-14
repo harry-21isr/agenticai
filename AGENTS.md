@@ -1,45 +1,31 @@
-## Agents
+# AGENTS.md
 
-### Overview
+## Stack
 
-This document details the agents available in our system, defining their roles, inputs, outputs, and associated tools.
+- **Next.js**: 16
+- **React**: 19
+- **Tailwind CSS**: v4
 
-### Existing Agents
+## Architecture
 
-#### Documentation Update Agent
+The project is structured as a monorepo using Yarn workspaces. The architecture includes a frontend and several microservices. Key components include:
 
-- **Role**: Automates the update of documentation files in the project repository.
-- **Inputs**: Git diffs from pull requests or direct file changes that require documentation updates.
-- **Outputs**: Updated documentation files (`AGENTS.md`, `SKILLS.md`, `CHANGELOG.md`).
-- **Tools**:
-  - **OpenAI API**: Utilized for processing diffs and generating documentation content based on predefined templates and models.
-  - **GitHub Actions**: Triggers on commits or pull requests, executing workflows that handle documentation generation tasks.
+- **Frontend**: Built with Next.js 16 and React 19, styled using Tailwind CSS v4.
+- **Backend**: Various microservices that handle different aspects of the application.
 
-#### Figma to SFMC Text Converter (Discontinued)
+## Breaking Changes
 
-- **Role**: Converted HTML content to plain text versions, especially for Salesforce Marketing Cloud (SFMC) email formats.
-- **Inputs**: HTML content files.
-- **Outputs**: Plain text files suitable for SFMC email templates.
-- **Tools**:
-  - **Cheerio**: For parsing and manipulating HTML content.
-  - **Node.js**: For running scripts that handle the conversion process.
+Recent updates have included changes in the AI documentation workflow automation:
 
-### New Agents
+- The workflow now writes prompt content to a file to avoid special-character escaping issues.
+- Output handling has been improved with better error reporting and JSON response management from the OpenAI API.
 
-#### AI Documentation Update Agent
+## Commands
 
-- **Role**: Enhance and automate the updating process of documentation files using AI models.
-- **Inputs**: Git diff files (`diff.txt`) and predefined prompts for AI interaction.
-- **Outputs**: Updated documentation files, namely `AGENTS.md`, `SKILLS.md`, and `CHANGELOG.md`.
-- **Tools**:
-  - **Node**: Executes custom scripts for calling AI models.
-  - **Curl**: Facilitates API requests to OpenAI for generating documentation content.
-  - **OpenAI API**: Central to processing the inputs and creating updates for documentation files based on coded logic.
+To run the automated AI documentation updates, use the following command:
 
-### Deprecated Agents
+```bash
+gh workflow run ai-docs.yml
+```
 
-#### Figma to SFMC Text Conversion Script
-
-- **Details**: The script handling plain text conversion from HTML (`scripts/figma2SFMC/text.js`) is removed. Its responsibility to parse and produce text-based email versions outlining structured content is no longer supported in the system's updated architecture.
-
-By effectively leveraging these agents, the system ensures efficient and automated documentation, thus enhancing overall project workflow and knowledge management.
+This command triggers the GitHub Actions workflow to update documentation files based on the recent git diffs.

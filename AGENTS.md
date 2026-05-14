@@ -2,30 +2,52 @@
 
 ## Stack
 
-- **Next.js**: 16
-- **React**: 19
-- **Tailwind CSS**: v4
+- **Runtime**: Node.js 20 (ESM modules — `"type": "module"` in package.json)
+- **HTML processing**: cheerio, posthtml, jsdom, html-crush
+- **PDF generation**: puppeteer, jspdf
+- **Other**: archiver, chalk, dotenv, node-fetch
 
 ## Architecture
 
-The project is structured as a monorepo using Yarn workspaces. The architecture includes a frontend and several microservices. Key components include:
+This is a Node.js email template build toolchain. It has no frontend framework. All scripts live under `scripts/` and are run via npm scripts defined in `package.json`. The project converts Figma designs and HTML templates into various email/presentation formats.
 
-- **Frontend**: Built with Next.js 16 and React 19, styled using Tailwind CSS v4.
-- **Backend**: Various microservices that handle different aspects of the application.
+### Pipelines
 
-## Breaking Changes
+| Pipeline | npm script | Purpose |
+|----------|-----------|---------|
+| **figma2SFMC** | `build:figma2sfmc` | Converts Figma frames to Salesforce Marketing Cloud (SFMC) HTML email templates |
+| **figma2RTE** | `build:figma2rte` | Converts Figma frames to Rich Text Email (RTE) format |
+| **rte2LSC** | `build:rte2lsc` | Transforms RTE/HTML into Litmus Send Cloud format with token replacement |
+| **veeva** | `build:veeva` | Builds Veeva email templates with fragmentation, image archiving, and PDF output |
+| **sfmc:text** | `sfmc:text` | Generates plain-text version of an SFMC email from `src/index.html` |
+| **imgtourl** | `build:imgtourl` | Applies hosted image URLs to SFMC HTML |
+| **pdf** | `pdf` / `pdf:url` | Generates PDFs from built HTML using puppeteer |
+| **dwsnippets** | `dwsnippets` | Generates DW-specific code snippets |
 
-Recent updates have included changes in the AI documentation workflow automation:
+### Key Directories
 
-- The workflow now writes prompt content to a file to avoid special-character escaping issues.
-- Output handling has been improved with better error reporting and JSON response management from the OpenAI API.
-
-## Commands
-
-To run the automated AI documentation updates, use the following command:
-
-```bash
-gh workflow run ai-docs.yml
+```
+scripts/
+  figma2SFMC/       # SFMC conversion engine + utilities
+    utils/          # layerNameNoIdentifiers, normalizedEncodedID, renderRichTextCta, smartlinks, wrapSupWithSpanFix
+  figma2RTE/        # RTE conversion (reuses figma2SFMC utils)
+  rte2LSC/          # Token replacement engine (60+ TOKEN_MAP entries)
+  veeva/            # Veeva template builder with CLI fragment support
+  automations_control/  # Automation state switches and HTML parsing helpers
+  utils/            # Shared: fileUtils, htmlUtils, logUtils, variablesReplacement, cleanDist, createPdfs
+src/                # Input HTML (index.html) and built output files
+test/               # Local staging server for previewing templates
+image-library/      # Shared image assets
 ```
 
-This command triggers the GitHub Actions workflow to update documentation files based on the recent git diffs.
+### figma2SFMC Utilities (`scripts/figma2SFMC/utils/`)
+
+- `smartlinks.js` — Wraps links with tracking parameters
+- `layerNameNoIdentifiers.js` — Strips identifiers from Figma layer names
+- `renderRichTextCta.js` — Renders button/CTA elements from rich text nodes
+- `wrapSupWithSpanFix.js` — Fixes superscript wrapping for email clients
+- `normalizedEncodedID.js` — Normalises and encodes element IDs
+
+### rte2LSC Token Map
+
+The `scripts/rte2LSC/build.js`

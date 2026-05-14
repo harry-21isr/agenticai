@@ -62,12 +62,14 @@ jobs:
             curl -s https://api.openai.com/v1/chat/completions \
               -H "Authorization: Bearer $OPENAI_API_KEY" \
               -H "Content-Type: application/json" \
-              -d @payload.json | node -e "
-                const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
-                if (d.error) { console.error('API Error:', d.error.message); process.exit(1); }
-                require('fs').writeFileSync(process.env.OUTFILE, d.choices[0].message.content);
-                console.log('Updated: ' + process.env.OUTFILE);
-              " OUTFILE="$outfile"
+              -d @payload.json > response.json
+
+            OUTFILE="$outfile" node -e "
+              const d = JSON.parse(require('fs').readFileSync('response.json', 'utf8'));
+              if (d.error) { console.error('API Error:', d.error.message); process.exit(1); }
+              require('fs').writeFileSync(process.env.OUTFILE, d.choices[0].message.content);
+              console.log('Updated: ' + process.env.OUTFILE);
+            "
           }
 
           call_ai "You are updating AGENTS.md for this project.

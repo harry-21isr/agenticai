@@ -111,7 +111,6 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git checkout ${{ github.head_ref }}
 
           git add AGENTS.md CHANGELOG.md
 
